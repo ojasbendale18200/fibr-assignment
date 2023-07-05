@@ -1,0 +1,24 @@
+const express = require("express");
+const { authenticate } = require("../middleware/authentication");
+const Quiz = require("../model/quiz.model");
+
+const quizRouter = express.Router();
+
+// Create a new quiz
+quizRouter.post("/", authenticate, async (req, res) => {
+  try {
+    const { title, questions } = req.body;
+    const creator = req.user.userId;
+
+    const newQuiz = new Quiz({ title, questions, creator });
+
+    await newQuiz.save();
+
+    res.json({ message: "Quiz created successfully", quiz: newQuiz });
+  } catch (error) {
+    console.error("Quiz creation error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+module.exports = { quizRouter };
